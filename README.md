@@ -1,5 +1,5 @@
 # PythonScript
-This repository contain some scripts I made with python
+This repository contain some scripts I made
 
 
 It will contain : 
