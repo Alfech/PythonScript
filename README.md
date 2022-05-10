@@ -1,4 +1,4 @@
-# PythonScript
+# Script
 This repository contain some scripts I made
 
 List scripts that this repo contains :
