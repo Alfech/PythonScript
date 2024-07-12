@@ -123,7 +123,8 @@ class BigInteger:
         Unary minus operator.
         Returns a new BigInteger with the opposite sign.
         """
-        return BigInteger(arrInteger=self.integer, sign=self.sign.value * -1)
+        new_sign = BigInteger.SIGN.NEGATIVE if self.sign == BigInteger.SIGN.POSITIVE else BigInteger.SIGN.POSITIVE
+        return BigInteger(arrInteger=self.integer, sign=new_sign)
     
 
     def __add__(self, other: 'BigInteger') -> 'BigInteger':
@@ -133,6 +134,7 @@ class BigInteger:
         """
         if not isinstance(other, BigInteger):
             raise TypeError("Unsupported operand type for +: '{}' and '{}'".format(type(self).__name__, type(other).__name__))
+        
         
         if self.sign == other.sign:
             result_sign = self.sign
@@ -149,7 +151,7 @@ class BigInteger:
             if carry:
                 result_integer.append(carry)
         else:
-            return self - other
+            return self - (-other)
         
         return BigInteger(arrInteger=result_integer, sign=result_sign)
     
@@ -163,12 +165,15 @@ class BigInteger:
         if not isinstance(other, BigInteger):
             raise TypeError("Unsupported operand type for -: '{}' and '{}'".format(type(self).__name__, type(other).__name__))
 
-        compare = BigInteger._compare(self, other)
 
+        if self.sign != other.sign:
+            return self + (-other)
+
+        compare = BigInteger._compare(self, other)
         if compare == 0:
             return BigInteger(0)
         
-        result_sign = self.sign if compare > 0 else other.sign
+        result_sign = self.sign if compare > 0 else BigInteger.SIGN.NEGATIVE if self.sign == BigInteger.SIGN.POSITIVE else BigInteger.SIGN.POSITIVE
         a, b = (self, other) if compare > 0 else (other, self)
             
         result_integer = []
@@ -185,7 +190,8 @@ class BigInteger:
                 borrow = 0
             result_integer.append(diff)
 
-        if borrow == 1:
+
+        while len(result_integer) > 1 and result_integer[-1] == 0:
             result_integer.pop()
             
         return BigInteger(arrInteger=result_integer, sign=result_sign)
@@ -265,37 +271,37 @@ def run_tests():
     # print("Fourth BigInteger:", bigint4.to_string())
     # print("Fifth BigInteger:", bigint5.to_string())
 
-    bigIntCompare1 = BigInteger(integer=153)
-    bigIntCompare2 = BigInteger(integer=15)
-    print("Test Compare 1 : ", BigInteger.compare(bigIntCompare1, bigIntCompare2))
+    # bigIntCompare1 = BigInteger(integer=153)
+    # bigIntCompare2 = BigInteger(integer=15)
+    # print("Test Compare 1 : ", BigInteger.compare(bigIntCompare1, bigIntCompare2))
 
-    bigIntCompare3 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntCompare4 = BigInteger(integer=15, sign=BigInteger.SIGN.NEGATIVE)
-    print("Test compare 2 : ", BigInteger.compare(bigIntCompare3, bigIntCompare4))
+    # bigIntCompare3 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
+    # bigIntCompare4 = BigInteger(integer=15, sign=BigInteger.SIGN.NEGATIVE)
+    # print("Test compare 2 : ", BigInteger.compare(bigIntCompare3, bigIntCompare4))
 
-    bigIntCompare5 = BigInteger(integer=153)
-    bigIntCompare6 = BigInteger(integer=15, sign=BigInteger.SIGN.NEGATIVE)
-    print("Test compare 3 : ", BigInteger.compare(bigIntCompare5, bigIntCompare6))
+    # bigIntCompare5 = BigInteger(integer=153)
+    # bigIntCompare6 = BigInteger(integer=15, sign=BigInteger.SIGN.NEGATIVE)
+    # print("Test compare 3 : ", BigInteger.compare(bigIntCompare5, bigIntCompare6))
 
-    bigIntCompare7 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntCompare8 = BigInteger(integer=15)
-    print("Test compare 4 : ", BigInteger.compare(bigIntCompare7, bigIntCompare8))
+    # bigIntCompare7 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
+    # bigIntCompare8 = BigInteger(integer=15)
+    # print("Test compare 4 : ", BigInteger.compare(bigIntCompare7, bigIntCompare8))
 
-    bigIntCompare9 = BigInteger(integer=153)
-    bigIntCompare10 = BigInteger(integer=154)
-    print("Test compare 5 : ", BigInteger.compare(bigIntCompare9, bigIntCompare10))
+    # bigIntCompare9 = BigInteger(integer=153)
+    # bigIntCompare10 = BigInteger(integer=154)
+    # print("Test compare 5 : ", BigInteger.compare(bigIntCompare9, bigIntCompare10))
 
-    bigIntCompare11 = BigInteger(integer=153)
-    bigIntCompare12 = BigInteger(integer=153)
-    print("Test compare 6 : ", BigInteger.compare(bigIntCompare11, bigIntCompare12))
+    # bigIntCompare11 = BigInteger(integer=153)
+    # bigIntCompare12 = BigInteger(integer=153)
+    # print("Test compare 6 : ", BigInteger.compare(bigIntCompare11, bigIntCompare12))
 
-    bigIntCompare13 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntCompare14 = BigInteger(integer=154, sign=BigInteger.SIGN.NEGATIVE)
-    print("Test compare 7 : ", BigInteger.compare(bigIntCompare13, bigIntCompare14))
+    # bigIntCompare13 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
+    # bigIntCompare14 = BigInteger(integer=154, sign=BigInteger.SIGN.NEGATIVE)
+    # print("Test compare 7 : ", BigInteger.compare(bigIntCompare13, bigIntCompare14))
 
-    bigIntCompare15 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntCompare16 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    print("Test compare 8 : ", BigInteger.compare(bigIntCompare15, bigIntCompare16))
+    # bigIntCompare15 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
+    # bigIntCompare16 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
+    # print("Test compare 8 : ", BigInteger.compare(bigIntCompare15, bigIntCompare16))
 
 
     bigIntAdd1 = BigInteger(integer=236)
@@ -313,7 +319,33 @@ def run_tests():
     bigIntAdd7 = BigInteger(integer=236)
     bigIntAdd8 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
     print("{} + {} = {}".format(bigIntAdd7, bigIntAdd8, bigIntAdd7 + bigIntAdd8))
+
+    bigIntSub1 = BigInteger(integer=236)
+    bigIntSub2 = BigInteger(integer=79)
+    print("{} - {} = {}".format(bigIntSub1, bigIntSub2, bigIntSub1 - bigIntSub2)) # 157
+
+    bigIntSub3 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
+    bigIntSub4 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
+    print("{} - {} = {}".format(bigIntSub3, bigIntSub4, bigIntSub3 - bigIntSub4)) #-157
+
+    bigIntSub5 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
+    bigIntSub6 = BigInteger(integer=79)
+    print("{} - {} = {}".format(bigIntSub5, bigIntSub6, bigIntSub5 - bigIntSub6))  # -315
+
+    bigIntSub7 = BigInteger(integer=236)
+    bigIntSub8 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
+    print("{} - {} = {}".format(bigIntSub7, bigIntSub8, bigIntSub7 - bigIntSub8)) # 315
+
+    bigIntSub9 = BigInteger(integer=79)
+    bigIntSub10 = BigInteger(integer=236)
+    print("{} - {} = {}".format(bigIntSub9, bigIntSub10, bigIntSub9 - bigIntSub10)) # -157
     
-    #Test substraction
+    bigIntSub11 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
+    bigIntSub12 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
+    print("{} - {} = {}".format(bigIntSub11, bigIntSub12, bigIntSub11 - bigIntSub12)) # 157
+
+    bigIntSub13 = BigInteger(integer=10)
+    bigIntSub14 = BigInteger(integer=9)
+    print("{} - {} = {}".format(bigIntSub13, bigIntSub14, bigIntSub13 - bigIntSub14)) # 1
 
 run_tests()
