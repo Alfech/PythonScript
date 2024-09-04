@@ -18,22 +18,27 @@ class BigInteger:
         def __lt__(self, other):
             if isinstance(other, BigInteger.SIGN):
                 return self.value < other.value
-            return self < other
+            return False
 
         def __le__(self, other):
             if isinstance(other, BigInteger.SIGN):
                 return self.value <= other.value
-            return self <= other
+            return False
 
         def __gt__(self, other):
             if isinstance(other, BigInteger.SIGN):
                 return self.value > other.value
-            return self > other
+            return False
 
         def __ge__(self, other):
             if isinstance(other, BigInteger.SIGN):
                 return self.value >= other.value
-            return self >= other
+            return False
+
+        def __eq__(self, other):
+            if isinstance(other, BigInteger.SIGN):
+                return self.value == other.value
+            return False
 
 
     def __init__(self, integer: int = None, arrInteger: List[int] = None, filePath: str = None, sign: 'BigInteger.SIGN' = SIGN.POSITIVE, order: 'BigInteger.ORDER' = ORDER.LITTLEENDIAN):
@@ -57,17 +62,15 @@ class BigInteger:
         self.sign = sign
 
         if integer is not None:
-            while integer > 0:
-                self.integer.append(integer%10)
-                integer //=10
+            if integer == 0:
+                self.integer = [0]
+            else:
+                while integer > 0:
+                    self.integer.append(integer%10)
+                    integer //=10
 
         elif arrInteger is not None:
-            if order == BigInteger.ORDER.BIGENDIAN:
-                self.integer = arrInteger[::-1]
-            elif order == BigInteger.ORDER.LITTLEENDIAN:
-                self.integer = arrInteger
-            else:
-                raise ValueError("You must provide a valid order when creating a big int from an array.")
+            self.integer = arrInteger
 
         elif filePath is not None:
             with open(filePath, 'r') as file:
@@ -75,12 +78,12 @@ class BigInteger:
                     for c in line:
                         if c.isdigit():
                             self.integer.append(int(c))
-
-            if order == BigInteger.ORDER.BIGENDIAN:
-                self.integer = self.integer[::-1]
+                            
         else:
             raise ValueError("You must provide an integer an array of integer or a file path storing a BigInteger")
 
+        if order == BigInteger.ORDER.BIGENDIAN:
+            self.integer.reverse()
 
 
     def to_string(self, order: 'BigInteger.ORDER' = ORDER.BIGENDIAN) -> str:
@@ -197,6 +200,32 @@ class BigInteger:
         return BigInteger(arrInteger=result_integer, sign=result_sign)
 
 
+    def __lt__(self, other):
+        if isinstance(other, BigInteger):
+            return BigInteger.compare(self, other) == -1
+        return False
+
+    def __le__(self, other):
+        if isinstance(other, BigInteger):
+            return BigInteger.compare(self, other) <= 0
+        return False
+
+    def __gt__(self, other):
+        if isinstance(other, BigInteger):
+            return BigInteger.compare(self, other) == 1
+        return False
+
+    def __ge__(self, other):
+        if isinstance(other, BigInteger):
+            return BigInteger.compare(self, other) >= 0
+        return False
+
+    def __eq__(self, other):
+        if isinstance(other, BigInteger):
+            return BigInteger.compare(self, other) == 0
+        return False
+
+
     @staticmethod
     def compare(a: 'BigInteger', b: 'BigInteger') -> int:
         """
@@ -252,100 +281,3 @@ class BigInteger:
                 elif i < j:
                     return -1
             return 0
-
-
-
-
-def run_tests():
-    # bigint1 = BigInteger(integer=123456789)
-    # bigint2 = BigInteger(arrInteger=[9, 8, 7, 6, 5, 4, 3, 2, 1])
-    # bigint3 = BigInteger(arrInteger=[1, 2, 3, 4, 5, 6, 7, 8, 9], order=BigInteger.ORDER.BIGENDIAN)
-
-    # print("First BigInteger:", bigint1.to_string())
-    # print("Second BigInteger:", bigint2.to_string())
-    # print("Third BigInteger:", bigint3.to_string())
-    # print("Inverse First BigInteger:", bigint1.to_string(order=BigInteger.ORDER.LITTLEENDIAN))
-
-    # bigint4 = BigInteger(filePath="./bigint_test.txt", order=BigInteger.ORDER.BIGENDIAN)
-    # bigint5 = BigInteger(filePath="./reverse_bigint_test.txt")
-    # print("Fourth BigInteger:", bigint4.to_string())
-    # print("Fifth BigInteger:", bigint5.to_string())
-
-    # bigIntCompare1 = BigInteger(integer=153)
-    # bigIntCompare2 = BigInteger(integer=15)
-    # print("Test Compare 1 : ", BigInteger.compare(bigIntCompare1, bigIntCompare2))
-
-    # bigIntCompare3 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    # bigIntCompare4 = BigInteger(integer=15, sign=BigInteger.SIGN.NEGATIVE)
-    # print("Test compare 2 : ", BigInteger.compare(bigIntCompare3, bigIntCompare4))
-
-    # bigIntCompare5 = BigInteger(integer=153)
-    # bigIntCompare6 = BigInteger(integer=15, sign=BigInteger.SIGN.NEGATIVE)
-    # print("Test compare 3 : ", BigInteger.compare(bigIntCompare5, bigIntCompare6))
-
-    # bigIntCompare7 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    # bigIntCompare8 = BigInteger(integer=15)
-    # print("Test compare 4 : ", BigInteger.compare(bigIntCompare7, bigIntCompare8))
-
-    # bigIntCompare9 = BigInteger(integer=153)
-    # bigIntCompare10 = BigInteger(integer=154)
-    # print("Test compare 5 : ", BigInteger.compare(bigIntCompare9, bigIntCompare10))
-
-    # bigIntCompare11 = BigInteger(integer=153)
-    # bigIntCompare12 = BigInteger(integer=153)
-    # print("Test compare 6 : ", BigInteger.compare(bigIntCompare11, bigIntCompare12))
-
-    # bigIntCompare13 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    # bigIntCompare14 = BigInteger(integer=154, sign=BigInteger.SIGN.NEGATIVE)
-    # print("Test compare 7 : ", BigInteger.compare(bigIntCompare13, bigIntCompare14))
-
-    # bigIntCompare15 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    # bigIntCompare16 = BigInteger(integer=153, sign=BigInteger.SIGN.NEGATIVE)
-    # print("Test compare 8 : ", BigInteger.compare(bigIntCompare15, bigIntCompare16))
-
-
-    bigIntAdd1 = BigInteger(integer=236)
-    bigIntAdd2 = BigInteger(integer=79)
-    print("{} + {} = {}".format(bigIntAdd1, bigIntAdd2, bigIntAdd1 + bigIntAdd2))
-
-    bigIntAdd3 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntAdd4 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
-    print("{} + {} = {}".format(bigIntAdd3, bigIntAdd4, bigIntAdd3 + bigIntAdd4))
-
-    bigIntAdd5 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntAdd6 = BigInteger(integer=79)
-    print("{} + {} = {}".format(bigIntAdd5, bigIntAdd6, bigIntAdd5 + bigIntAdd6))
-
-    bigIntAdd7 = BigInteger(integer=236)
-    bigIntAdd8 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
-    print("{} + {} = {}".format(bigIntAdd7, bigIntAdd8, bigIntAdd7 + bigIntAdd8))
-
-    bigIntSub1 = BigInteger(integer=236)
-    bigIntSub2 = BigInteger(integer=79)
-    print("{} - {} = {}".format(bigIntSub1, bigIntSub2, bigIntSub1 - bigIntSub2)) # 157
-
-    bigIntSub3 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntSub4 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
-    print("{} - {} = {}".format(bigIntSub3, bigIntSub4, bigIntSub3 - bigIntSub4)) #-157
-
-    bigIntSub5 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntSub6 = BigInteger(integer=79)
-    print("{} - {} = {}".format(bigIntSub5, bigIntSub6, bigIntSub5 - bigIntSub6))  # -315
-
-    bigIntSub7 = BigInteger(integer=236)
-    bigIntSub8 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
-    print("{} - {} = {}".format(bigIntSub7, bigIntSub8, bigIntSub7 - bigIntSub8)) # 315
-
-    bigIntSub9 = BigInteger(integer=79)
-    bigIntSub10 = BigInteger(integer=236)
-    print("{} - {} = {}".format(bigIntSub9, bigIntSub10, bigIntSub9 - bigIntSub10)) # -157
-    
-    bigIntSub11 = BigInteger(integer=79, sign=BigInteger.SIGN.NEGATIVE)
-    bigIntSub12 = BigInteger(integer=236, sign=BigInteger.SIGN.NEGATIVE)
-    print("{} - {} = {}".format(bigIntSub11, bigIntSub12, bigIntSub11 - bigIntSub12)) # 157
-
-    bigIntSub13 = BigInteger(integer=10)
-    bigIntSub14 = BigInteger(integer=9)
-    print("{} - {} = {}".format(bigIntSub13, bigIntSub14, bigIntSub13 - bigIntSub14)) # 1
-
-run_tests()
